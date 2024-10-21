@@ -17,5 +17,9 @@
 	</p>
 
 </form>
+
+     <form action="login.jsp" method="get">
+        <input type="submit" value="Login">
+    </form>
 </body>
 </html>
