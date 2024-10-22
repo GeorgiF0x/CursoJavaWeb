@@ -15,13 +15,19 @@ public class Alumn {
 	private String nombre;
 	private String apellidos;
 	private String numTelefono;
+	private String password;
 	
-	public Alumn(int id, String nombre, String apellidos, String numTelefono) {
+	public Alumn(int id, String nombre, String apellidos, String numTelefono ,String password) {
 		super();
 		this.id=id;
 		this.nombre = nombre;
 		this.apellidos = apellidos;
 		this.numTelefono = numTelefono;
+		this.password= password;
+	}
+
+	public Alumn() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getNombre() {
@@ -65,6 +71,14 @@ public class Alumn {
 	public String toString() {
 		return "Alumn [id=" + id + ", nombre=" + nombre + ", apellidos=" + apellidos + ", numTelefono=" + numTelefono
 				+ "]";
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	

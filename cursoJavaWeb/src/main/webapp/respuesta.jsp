@@ -12,5 +12,9 @@
      <form action="index.jsp" method="get">
         <input type="submit" value="Volver al inicio">
     </form>
+    
+    <form action="ServletPerfil" method="get">
+        <input type="submit" value="Ver perfil" name="verPerfil">
+    </form>
 </body>
 </html>

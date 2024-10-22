@@ -34,8 +34,9 @@ public class AlumnoDAO {
 	                    String nombre = rs.getString(2);
 	                    String apellidos = rs.getString(3);
 	                    String telefono = rs.getString(4);
-
-	                    Alumn alumno = new Alumn(id, nombre, apellidos, telefono);
+	                    String password = rs.getString(4);
+		                
+		                Alumn alumno = new Alumn(id, nombre, apellidos, telefono,password);
 	                    lista_alumnos.add(alumno);
 	                }
 	            }
@@ -46,6 +47,43 @@ public class AlumnoDAO {
 	        }
 	        
 			return lista_alumnos;
+	}
+	
+	public static  Alumn  getById(int id) throws SQLException {
+
+		Alumn alumno= new Alumn();
+		//instanciar clase Connection usando el metodo de la clase conexion 
+		 Connection conn = Conexion.getConexion();
+	        //comprobar si se ha instanicado con el metodo correctamente
+	        if (conn != null) {
+	            System.out.println("Conexión establecida con éxito.");
+	            String sql="Select * from alumno where id = ?";
+	            //crear un objeto preparedStatement al que se le pasa una cadena con el sql preparado
+	            PreparedStatement pstmt = conn.prepareStatement(sql);
+	            pstmt.setInt(1, id);
+	            //crear objeto resultSet para manipular los datos ejecutando el statment
+	            ResultSet rs = pstmt.executeQuery();
+	            if (!rs.isBeforeFirst()) {    
+	                // Si no hay registros, mostrar mensaje
+	                System.out.println("No hay registros disponibles.");
+	            } else {
+	                while(rs.next()) {
+	                    int idAlumno = rs.getInt(1);
+	                    String nombre = rs.getString(2);
+	                    String apellidos = rs.getString(3);
+	                    String telefono = rs.getString(4);
+	                    String password = rs.getString(4);
+		                
+		                alumno = new Alumn(idAlumno, nombre, apellidos, telefono,password);
+	                   
+	                }
+	            }
+	     
+	        } else {
+	            System.out.println("No se pudo establecer la conexión.");
+	        }
+	        
+			return alumno;
 	}
 	
 	public static ArrayList<Alumn> getAll() throws SQLException {
@@ -74,8 +112,9 @@ public class AlumnoDAO {
                     String nombre = rs.getString(2);
                     String apellidos = rs.getString(3);
                     String telefono = rs.getString(4);
+                    String password = rs.getString(4);
 	                
-	                Alumn alumno = new Alumn(id, nombre, apellidos, telefono);
+	                Alumn alumno = new Alumn(id, nombre, apellidos, telefono,password);
 	                lista_alumnos.add(alumno);
 	            }
 	        }
@@ -127,42 +166,43 @@ public class AlumnoDAO {
 	    
 	}
 	
-	public static boolean validateUser(String nombre, String password) throws SQLException {
-	    boolean isValid = false;
+	public static Alumn validateUser(String nombre, String password) throws SQLException {
+	    Alumn alumno = null; // Inicializa como null
 
 	    // Instanciar clase Connection usando el método de la clase conexión 
-	    Connection conn = Conexion.getConexion();
+	    try (Connection conn = Conexion.getConexion()) { // Usar try-with-resources para cerrar automáticamente
+	        if (conn != null) {
+	            System.out.println("Conexión establecida con éxito.");
+	            String sql = "SELECT * FROM alumno WHERE nombre = ? AND password = ?"; // Considera usar hash en lugar de texto plano
+	            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	                pstmt.setString(1, nombre);
+	                pstmt.setString(2, password);
 
-	    // Comprobar si se ha instanciado correctamente
-	    if (conn != null) {
-	        System.out.println("Conexión establecida con éxito.");
+	                // Ejecutar la consulta
+	                try (ResultSet rs = pstmt.executeQuery()) {
+	                    // Verificar si hay resultados
+	                    if (rs.next()) { // Usa if en lugar de while para obtener solo un resultado
+	                        int id = rs.getInt(1);
+	                        String nombreAlumno = rs.getString(2);
+	                        String apellidos = rs.getString(3);
+	                        String telefono = rs.getString(4);
+	                        String passwordAlumno = rs.getString(5); // Corrige el índice
 
-	        String sql = "SELECT * FROM alumno WHERE nombre = ? AND password = ?";
-	        PreparedStatement pstmt = conn.prepareStatement(sql);
-	        pstmt.setString(1, nombre);
-	        pstmt.setString(2, password);
-
-	        // Ejecutar la consulta
-	        ResultSet rs = pstmt.executeQuery();
-
-	        // Verificar si hay resultados
-	        if (rs.next()) { // Si existe al menos un registro
-	            isValid = true; // Usuario y password válidos
-	            System.out.println("Usuario validado con éxito.");
+	                        alumno = new Alumn(id, nombreAlumno, apellidos, telefono, passwordAlumno);
+	                    }
+	                }
+	            }
 	        } else {
-	            System.out.println("Usuario o contraseña incorrectos.");
+	            System.out.println("No se pudo establecer la conexión.");
 	        }
-
-	        // Cerrar recursos
-	        rs.close();
-	        pstmt.close();
-	        conn.close(); // Asegúrate de cerrar la conexión también
-	    } else {
-	        System.out.println("No se pudo establecer la conexión.");
+	    } catch (SQLException e) {
+	        e.printStackTrace(); // Captura y muestra excepciones
 	    }
 
-	    return isValid;
+	    return alumno; // Devolverá null si no se encontró un usuario
 	}
+
+	
 
 
 

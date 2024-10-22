@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import modelo.Alumn;
 import modelo.AlumnoDAO;
 
 /**
@@ -39,27 +40,48 @@ public class ServletLogin extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		try {
-			String pagina="error.jsp";
-			
-			String nombre = request.getParameter("username");
-			String password = request.getParameter("password");
-			
-			if(AlumnoDAO.validateUser(nombre, password)) {
-				request.setAttribute("resultado","INICIO DE SESION CORRECTO" );
-				request.getRequestDispatcher("respuesta.jsp").forward(request, response);
-			}else {
-				request.getRequestDispatcher("error.jsp").forward(request, response);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	    String pagina = "error.jsp"; 
+	    try {
+	        String nombre = request.getParameter("username");
+	        String password = request.getParameter("password");
+	        
+	        // Validación básica de longitud
+	        if (nombre.length() < 4 || password.length() < 4) {
+	            // Si no cumple la validación de longitud, setea el mensaje de error
+	            request.setAttribute("resultadoValidacion", "Rellena con al menos 6 caracteres.");
+	        } else {
+	            // Si la longitud es válida, validar el usuario contra la base de datos
+	            Alumn alumno = AlumnoDAO.validateUser(nombre, password); // Cambiar a objeto Alumn
+	            
+	            if (alumno != null) { // Comprueba si el alumno no es nulo
+	            	
+	                // Si el usuario es válido, almacenar el ID y el nombre en la sesión
+	                request.getSession().setAttribute("usuarioId", alumno.getId());
+	                request.getSession().setAttribute("usuarioNombre", alumno.getNombre());
+
+	                // Redirige a la página de respuesta con el mensaje de éxito
+	                pagina = "respuesta.jsp";
+	                request.setAttribute("resultado", nombre + " INICIO DE SESION CORRECTO");
+	            } else {
+	                // Si el usuario no es válido, setea el mensaje de error
+	                request.setAttribute("resultadoValidacion", "Usuario o contraseña incorrectos.");
+	            }
+	        }
+	        
+	        
+	        // Redirigir a la página correspondiente (error.jsp o respuesta.jsp)
+	        request.getRequestDispatcher(pagina).forward(request, response);
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        request.getRequestDispatcher("error.jsp").forward(request, response);
+	    }
+	}
+
+
 		
 		
 		
 		
 	}
 
-}
+
